@@ -209,7 +209,7 @@ textarea{width:100%;background:var(--warm);border:1px solid var(--border);border
         <button class="dose-btn" onclick="selDose(this)">10mg</button>
       </div>
       <div style="font-size:11px;color:var(--soft)">Last injection date:</div>
-      <input type="date">
+      <input type="date" oninput="saveState()">
     </div>
     <div class="sig">
       <div class="sig-l">Daily signals <span style="font-size:10px;color:var(--mute)">(1 low → 5 high)</span></div>
@@ -221,7 +221,7 @@ textarea{width:100%;background:var(--warm);border:1px solid var(--border);border
     </div>
     <div class="sig">
       <div style="display:flex;justify-content:space-between;margin-bottom:9px;"><span class="sig-l" style="margin:0">Monthly glow log</span><span style="font-family:var(--serif);font-size:14px;color:var(--gold)" id="glMonth"></span></div>
-      <textarea rows="2" placeholder="How do you feel about how you look right now? One honest sentence."></textarea>
+      <textarea rows="2" placeholder="How do you feel about how you look right now? One honest sentence." oninput="saveState()"></textarea>
     </div>
   </div>
 
@@ -287,11 +287,13 @@ function gTab(id, el) {
 function tick(el) {
   el.classList.toggle('done');
   updateProgress();
+  saveState();
 }
 
 // Supplement tick
 function tickS(el) {
   el.classList.toggle('done');
+  saveState();
 }
 
 // Progress
@@ -318,23 +320,27 @@ function toggleRam() {
   document.getElementById('protNm').textContent = ramOn ? 'Protein-first Suhoor' : 'Protein-first meal';
   document.getElementById('waterNm').textContent = ramOn ? 'Hydrate between Iftar & Suhoor' : '2L water today';
   document.getElementById('washHi').textContent = ramOn ? 'Nizoral day — use as shampoo today.' : 'Scalp-focused. Conditioner mid-lengths only.';
+  saveState();
 }
 
 // Hard day
 function toggleHard() {
   document.getElementById('togHard').classList.toggle('on');
+  saveState();
 }
 
 // Mood
 function selMood(el) {
   document.querySelectorAll('.mood-btn').forEach(function(b){b.classList.remove('sel');});
   el.classList.add('sel');
+  saveState();
 }
 
 // Dose
 function selDose(el) {
   document.querySelectorAll('.dose-btn').forEach(function(b){b.classList.remove('sel');});
   el.classList.add('sel');
+  saveState();
 }
 
 // Build pip dots
@@ -350,6 +356,7 @@ function buildPips() {
         var k = this.getAttribute('data-k');
         document.querySelectorAll('#pg-'+k+' .pip').forEach(function(p){p.classList.remove('sel');});
         this.classList.add('sel');
+        saveState();
       };
       row.appendChild(d);
     }
@@ -378,6 +385,112 @@ function setHairDays() {
 buildPips();
 setMonth();
 setHairDays();
+loadState();
+
+// ── SAVE / LOAD STATE ──
+function saveState() {
+  var state = {};
+  // checklist items
+  document.querySelectorAll('.ir').forEach(function(el, i) {
+    state['ir'+i] = el.classList.contains('done');
+  });
+  // supplement rows
+  document.querySelectorAll('.sr').forEach(function(el, i) {
+    state['sr'+i] = el.classList.contains('done');
+  });
+  // mood
+  var mood = document.querySelector('.mood-btn.sel');
+  state['mood'] = mood ? mood.textContent : '';
+  // dose
+  var dose = document.querySelector('.dose-btn.sel');
+  state['dose'] = dose ? dose.textContent : '';
+  // pips
+  ['sl','en','ax','hs','sk'].forEach(function(k) {
+    document.querySelectorAll('#pg-'+k+' .pip').forEach(function(p,i) {
+      state['pip-'+k+'-'+i] = p.classList.contains('sel');
+    });
+  });
+  // toggles
+  state['ram'] = ramOn;
+  state['hard'] = document.getElementById('togHard').classList.contains('on');
+  // date
+  var dt = document.querySelector('input[type=date]');
+  state['date'] = dt ? dt.value : '';
+  // glow log
+  var gl = document.querySelector('textarea');
+  state['glow'] = gl ? gl.value : '';
+  // active tab
+  var tab = document.querySelector('.tab.active');
+  state['tab'] = tab ? tab.textContent.trim() : 'Today';
+  try { localStorage.setItem('g-os', JSON.stringify(state)); } catch(e){}
+}
+
+function loadState() {
+  var raw;
+  try { raw = localStorage.getItem('g-os'); } catch(e){}
+  if (!raw) return;
+  var state = JSON.parse(raw);
+  // checklist
+  document.querySelectorAll('.ir').forEach(function(el, i) {
+    if (state['ir'+i]) el.classList.add('done');
+  });
+  // supplements
+  document.querySelectorAll('.sr').forEach(function(el, i) {
+    if (state['sr'+i]) el.classList.add('done');
+  });
+  // mood
+  if (state['mood']) {
+    document.querySelectorAll('.mood-btn').forEach(function(b) {
+      if (b.textContent === state['mood']) b.classList.add('sel');
+    });
+  }
+  // dose
+  if (state['dose']) {
+    document.querySelectorAll('.dose-btn').forEach(function(b) {
+      if (b.textContent === state['dose']) b.classList.add('sel');
+    });
+  }
+  // pips — need small delay for DOM
+  setTimeout(function() {
+    ['sl','en','ax','hs','sk'].forEach(function(k) {
+      document.querySelectorAll('#pg-'+k+' .pip').forEach(function(p,i) {
+        if (state['pip-'+k+'-'+i]) p.classList.add('sel');
+      });
+    });
+  }, 50);
+  // toggles
+  if (state['ram']) { ramOn = false; toggleRam(); }
+  if (state['hard']) document.getElementById('togHard').classList.add('on');
+  // date
+  if (state['date']) {
+    var dt = document.querySelector('input[type=date]');
+    if (dt) dt.value = state['date'];
+  }
+  // glow
+  if (state['glow']) {
+    var gl = document.querySelector('textarea');
+    if (gl) gl.value = state['glow'];
+  }
+  // progress
+  updateProgress();
+  // reset daily items at midnight
+  checkDayReset();
+}
+
+// Reset checklist at midnight
+function checkDayReset() {
+  var today = new Date().toDateString();
+  var lastDay;
+  try { lastDay = localStorage.getItem('g-os-day'); } catch(e){}
+  if (lastDay && lastDay !== today) {
+    // New day — clear checklist and signals only
+    document.querySelectorAll('.ir').forEach(function(el) { el.classList.remove('done'); });
+    document.querySelectorAll('.pip').forEach(function(p) { p.classList.remove('sel'); });
+    document.querySelectorAll('.mood-btn').forEach(function(b) { b.classList.remove('sel'); });
+    updateProgress();
+  }
+  try { localStorage.setItem('g-os-day', today); } catch(e){}
+}
 </script>
 
 </body>
