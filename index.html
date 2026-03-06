@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="G · OS">
+<title>G · Daily OS</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{background:#FAF6F0;color:#2A1F14;font-family:'DM Sans',system-ui,sans-serif;font-size:14px;font-weight:300;line-height:1.5;}
+body{max-width:430px;margin:0 auto;min-height:100dvh;padding-bottom:90px;}
+:root{
+  --gold:#B8935A;--gold-l:#C9A96E;--gold-g:rgba(184,147,90,0.10);
+  --terra:#B86B4A;--sage:#7A9678;--sage-g:rgba(122,150,120,0.10);
+  --deep:#2A1F14;--mid:#5C4A36;--soft:#9A856C;--mute:#C4B09A;
+  --border:rgba(184,147,90,0.15);--border2:rgba(184,147,90,0.28);
+  --warm:#F5EDE0;--parch:#EAD9C4;--card:#fff;
+  --serif:'Cormorant Garamond',Georgia,serif;
+}
+.hd{padding:14px 16px 8px;display:flex;align-items:flex-start;justify-content:space-between;background:#FAF6F0;}
+.greet{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--soft);margin-bottom:2px;}
+.ttl{font-family:var(--serif);font-size:30px;font-weight:300;color:var(--deep);line-height:1;}
+.ttl em{font-style:italic;color:var(--gold);}
+.hdr{display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
+.streak{background:var(--card);border:1px solid var(--border2);border-radius:100px;padding:5px 12px;font-size:11px;color:var(--soft);}
+.togs{display:flex;gap:6px;}
+.tog{font-size:10px;color:var(--soft);background:var(--card);border:1px solid var(--border);border-radius:100px;padding:5px 12px;cursor:pointer;white-space:nowrap;transition:all .2s;}
+.tog.on.ram{background:var(--sage-g);border-color:rgba(122,150,120,0.3);color:var(--sage);}
+.tog.on.hard{background:rgba(184,107,74,0.09);border-color:rgba(184,107,74,0.28);color:var(--terra);}
+.tone{padding:0 16px 5px;font-family:var(--serif);font-size:13px;font-style:italic;color:var(--soft);}
+.prog-w{padding:0 16px 4px;display:flex;justify-content:space-between;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--mute);}
+.prog-bar{margin:0 16px 2px;height:2px;background:var(--parch);border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-l));border-radius:2px;width:0%;transition:width .4s;}
+.tab-bar{display:flex;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--border);background:#FAF6F0;position:sticky;top:0;z-index:20;padding:0 16px;}
+.tab-bar::-webkit-scrollbar{display:none;}
+.tab{padding:10px 0;margin-right:16px;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mute);cursor:pointer;border-bottom:1.5px solid transparent;margin-bottom:-1px;white-space:nowrap;flex-shrink:0;transition:color .15s,border-color .15s;}
+.tab.active{color:var(--terra);border-bottom-color:var(--terra);}
+.views{padding:0 16px 16px;}
+.view{display:none;padding-top:6px;}
+.view.active{display:block;}
+.sect{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold-l);padding:14px 0 7px;display:flex;align-items:center;gap:10px;}
+.sect:first-child{padding-top:4px;}
+.sect::after{content:'';flex:1;height:1px;background:var(--border);}
+.ir{margin-bottom:6px;}
+.ir label{display:flex;align-items:flex-start;gap:12px;padding:13px 14px;background:var(--card);border:1px solid var(--border);border-radius:12px;cursor:pointer;position:relative;overflow:hidden;-webkit-user-select:none;user-select:none;transition:background .2s,opacity .2s;}
+.ir label::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--c,transparent);border-radius:3px 0 0 3px;}
+.ir input{display:none;}
+.ir.done label{background:var(--warm);opacity:.65;}
+.ir.done .nm{text-decoration:line-through;color:var(--soft);}
+.ir.done .cb{background:var(--sage);border-color:var(--sage);}
+.ir.done .cb::after{content:'✓';color:#fff;font-size:11px;}
+.cb{width:22px;height:22px;min-width:22px;border-radius:50%;border:1.5px solid var(--parch);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all .2s;}
+.ib{flex:1;min-width:0;}
+.nm{font-size:13px;font-weight:400;color:var(--deep);line-height:1.4;transition:all .2s;}
+.hi{font-size:11px;color:var(--soft);margin-top:2px;line-height:1.4;}
+.badge{font-size:9px;padding:2px 9px;border-radius:100px;border:1px solid var(--border2);background:var(--gold-g);color:var(--gold);letter-spacing:.5px;text-transform:uppercase;flex-shrink:0;margin-top:2px;}
+.wk{background:rgba(184,107,74,0.08);color:var(--terra);border-color:rgba(184,107,74,0.2);}
+.lph{text-align:center;font-size:10px;color:var(--mute);padding:12px 0 2px;}
+.cat-core{--c:var(--gold);}.cat-soul{--c:#9A7AAE;}.cat-skin{--c:var(--sage);}.cat-hair{--c:var(--terra);}.cat-nourish{--c:#7A9CB0;}.cat-med{--c:#C8907A;}
+.sb{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;}
+.st{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+.sr{border-bottom:1px solid var(--border);}
+.sr:last-of-type{border-bottom:none;}
+.sr label{display:flex;align-items:center;gap:10px;padding:9px 0;cursor:pointer;}
+.sr input{display:none;}
+.sr.done label .sc{background:var(--sage);border-color:var(--sage);}
+.sr.done label .sc::after{content:'✓';color:#fff;font-size:9px;}
+.sr.done label .sn{text-decoration:line-through;color:var(--soft);}
+.sc{width:18px;height:18px;min-width:18px;border-radius:50%;border:1.5px solid var(--parch);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;}
+.sn{font-size:12px;color:var(--deep);flex:1;}
+.stg{font-size:10px;color:var(--mute);}
+.sw{font-size:10px;color:var(--terra);background:rgba(184,107,74,0.06);border-radius:6px;padding:7px 10px;margin-top:9px;line-height:1.6;}
+.ss{background:var(--warm);border:1px dashed var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;}
+.ss-t{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--soft);margin-bottom:9px;}
+.ss-r{padding:6px 0;border-bottom:1px solid var(--border);font-size:11px;color:var(--mid);line-height:1.7;}
+.ss-r:last-child{border-bottom:none;}
+.ss-r b{color:var(--deep);font-weight:500;}
+.stb{background:var(--sage-g);border:1px solid rgba(122,150,120,0.2);border-radius:12px;padding:14px 16px;margin-bottom:10px;}
+.stb-t{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--sage);margin-bottom:9px;}
+.stb-r{padding:6px 0;border-bottom:1px solid rgba(122,150,120,0.1);font-size:11px;color:var(--mid);line-height:1.7;}
+.stb-r:last-child{border-bottom:none;}
+.stb-r b{color:var(--deep);font-weight:500;}
+.sig{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;}
+.sig-l{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--soft);margin-bottom:10px;}
+.dose-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.dose-btn{font-size:11px;padding:5px 14px;border-radius:100px;border:1px solid var(--border);color:var(--soft);cursor:pointer;background:var(--card);font-family:'DM Sans',system-ui;transition:all .15s;}
+.dose-btn.sel{background:var(--gold-g);color:var(--gold);border-color:var(--border2);}
+input[type=date]{border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:11px;color:var(--deep);background:var(--warm);outline:none;width:100%;margin-top:5px;font-family:'DM Sans',system-ui;}
+.mr{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);}
+.mr:last-child{border-bottom:none;}
+.ml{font-size:12px;color:var(--mid);flex:1;}
+.pg{display:flex;gap:6px;}
+.pip{width:13px;height:13px;border-radius:50%;border:1px solid var(--parch);background:var(--card);cursor:pointer;transition:all .15s;}
+.pip.sel{background:var(--gold-l);border-color:var(--gold);}
+textarea{width:100%;background:var(--warm);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:12px;color:var(--deep);resize:none;outline:none;min-height:60px;font-family:'DM Sans',system-ui;}
+.fact{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:14px;}
+.fact-l{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:7px;}
+.fact-t{font-family:var(--serif);font-size:15px;font-style:italic;color:var(--deep);line-height:1.5;}
+.rod{background:linear-gradient(135deg,#FFFCF8,var(--warm));border:1px solid var(--border2);border-radius:14px;padding:18px;margin-bottom:14px;}
+.rod-l{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:7px;}
+.rod-t{font-family:var(--serif);font-size:20px;font-style:italic;color:var(--deep);line-height:1.3;}
+.rod-s{font-size:12px;color:var(--soft);margin-top:6px;line-height:1.6;}
+.rr{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);}
+.rr:last-child{border-bottom:none;}
+.rn{font-family:var(--serif);font-size:18px;color:var(--parch);width:22px;flex-shrink:0;line-height:1.3;}
+.rt{font-size:13px;font-weight:400;color:var(--deep);margin-bottom:2px;}
+.rs{font-size:11px;color:var(--soft);line-height:1.6;}
+.foot{position:fixed;bottom:0;left:0;right:0;padding:8px 20px 18px;border-top:1px solid var(--border);background:rgba(250,246,240,0.97);backdrop-filter:blur(12px);z-index:30;}
+.foot-in{display:flex;align-items:center;justify-content:space-between;max-width:430px;margin:0 auto;}
+.mood-l{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--soft);margin-bottom:5px;}
+.mood-row{display:flex;gap:5px;}
+.mood-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:var(--card);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.mood-btn.sel{border-color:var(--gold);background:var(--gold-g);}
+.ram-badge{font-size:10px;color:var(--sage);display:none;}
+.ram-badge.show{display:block;}
+</style>
+</head>
+<body>
+
+<div class="tab-bar" id="tabBar">
+  <div class="tab active" onclick="gTab('today',this)">Today</div>
+  <div class="tab" onclick="gTab('supps',this)">Supplements</div>
+  <div class="tab" onclick="gTab('signals',this)">Signals</div>
+  <div class="tab" onclick="gTab('rules',this)">Rules</div>
+  <div class="tab" onclick="gTab('review',this)">Review</div>
+  <div class="tab" onclick="gTab('hair',this)">Haircare</div>
+</div>
+
+<div class="hd">
+  <div>
+    <div class="greet">Good morning</div>
+    <div class="ttl">Today, <em>G</em></div>
+  </div>
+  <div class="hdr">
+    <div class="streak">🔥 <span id="streakN">0</span> days</div>
+    <div class="togs">
+      <div class="tog ram" id="togRam" onclick="toggleRam()">🌙 Ramadan</div>
+      <div class="tog hard" id="togHard" onclick="toggleHard()">Hard day</div>
+    </div>
+  </div>
+</div>
+<div class="tone">The protocol works. Trust it.</div>
+<div class="prog-w"><span>Essentials</span><span id="progTxt">0 / 5</span></div>
+<div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+
+<div class="views">
+
+  <div class="view active" id="view-today">
+    <div class="sect">Morning</div>
+    <div class="ir cat-core" onclick="tick(this)"><label><div class="cb"></div><div class="ib"><div class="nm">Water + 5 slow exhales</div><div class="hi">Before phone. Vagus nerve activation.</div></div><div class="badge">★ core</div></label><input type="checkbox"></div>
+    <div class="ir cat-soul" onclick="tick(this)"><label><div class="cb"></div><div class="ib"><div class="nm">Fajr prayer</div><div class="hi">Anchor the day before anything else.</div></div><div class="badge">★ core</div></label><input type="checkbox"></div>
+    <div class="ir cat-nourish" onclick="tick(this)"><label><div class="cb"></div><div class="ib"><div class="nm" id="protNm">Protein-first meal</div><div class="hi" id="protHi">20g+ before carbs. Blood sugar stability.</div></div><div class="badge">★ core</div></label><input type="checkbox"></div>
+    <div class="ir cat-skin" onclick="tick(this)"><label><div class="cb"></div><div class="ib"><div class="nm">SPF 50</div><div class="hi">Every day. No exceptions.</div></div><div class="badge">★ core</div></label><input type="checkbox"></div>
+    <div class="ir cat-skin" onclick="tick(this)"><label><div class="cb"></div><div class="ib"><div class="nm">AM skincare</div><div class="hi">Cleanser → serum → moisturizer → SPF.</div></div></label><input type="checkbox"></div>
+    <div class="ir cat-core" onclick="tick(this)"><label><div class="cb"></div><div class="ib"><div class="nm">Brush + floss</div><div class="hi">Morning and night.</div></div></label><input type="checkbox"></div>
+    <div class="sect">Midday</div>
+    <div class="ir cat-core" onclick="tick(this)"><label><div class="cb"></div><div class="ib"><div class="nm">10 min walk after eating</div><div class="hi">Blood sugar, cortisol, digestion.</div></div></label><input type="checkbox"></div>
+    <div class="ir cat-nourish" onclick="tick(this)"><label><div class="cb"></div><div class="ib"><div class="nm" id="waterNm">2L water today</div><div class="hi">Dehydration mimics anxiety symptoms exactly.</div></div></label><input type="checkbox"></div>
+    <div class="sect">Evening</div>
+    <div class="ir cat-core" onclick="tick(this)"><label><div class="cb"></div><div class="ib"><div class="nm">Dim screens 90 min before sleep</div><div class="hi">Parasympathetic shift. Reduces sleep jolts.</div></div></label><input type="checkbox"></div>
+    <div class="sect">Night</div>
+    <div class="ir cat-med" onclick="tick(this)"><label><div class="cb"></div><div class="ib"><div class="nm">Spironolactone 25mg</div><div class="hi" id="spiroHi">Nightly. Non-negotiable.</div></div><div class="badge">★ core</div></label><input type="checkbox"></div>
+    <div class="ir cat-skin" onclick="tick(this)"><label><div class="cb"></div><div class="ib"><div class="nm">PM skincare</div><div class="hi">Cleanser → moisturizer. Tret Mon/Wed/Sat.</div></div></label><input type="checkbox"></div>
+    <div class="lph">Tap any item to check it off</div>
+  </div>
+
+  <div class="view" id="view-supps">
+    <div class="sb">
+      <div class="st">Morning · with Suhoor or breakfast</div>
+      <div class="sr" onclick="tickS(this)"><label><div class="sc"></div><div class="sn">OptiFer C — Iron 18mg + Vit C</div><span class="stg">Ferritin ↑</span></label><input type="checkbox"></div>
+      <div class="sr" onclick="tickS(this)"><label><div class="sc"></div><div class="sn">Milk Thistle 1,000mg</div><span class="stg">Liver · GGT</span></label><input type="checkbox"></div>
+      <div class="sr" onclick="tickS(this)"><label><div class="sc"></div><div class="sn">Paradox Omega-3 + D3</div><span class="stg">Inflammation</span></label><input type="checkbox"></div>
+      <div class="sw">⚠ Iron and magnesium must be at least 2 hours apart. Morning iron + night magnesium solves this automatically.</div>
+    </div>
+    <div class="sb">
+      <div class="st">Largest meal of the day</div>
+      <div class="sr" onclick="tickS(this)"><label><div class="sc"></div><div class="sn">Pumpkin Seed Oil 3,000mg</div><span class="stg">DHT · fat-soluble</span></label><input type="checkbox"></div>
+    </div>
+    <div class="sb">
+      <div class="st">Night · with or after Iftar</div>
+      <div class="sr" onclick="tickS(this)"><label><div class="sc"></div><div class="sn">Magnesium Glycinate 350mg</div><span class="stg">Sleep · GABA</span></label><input type="checkbox"></div>
+      <div class="sr" onclick="tickS(this)"><label><div class="sc"></div><div class="sn">Lemon Balm 1,500mg</div><span class="stg">Sleep onset</span></label><input type="checkbox"></div>
+      <div class="sw">⚠ Spiro is potassium-sparing. Avoid potassium supplements and licorice extract.</div>
+    </div>
+    <div class="ss">
+      <div class="ss-t">Stopped · and why</div>
+      <div class="ss-r"><b>Saw Palmetto</b> — Spiro already blocks androgens. Fully redundant.</div>
+      <div class="ss-r"><b>ReNwHAIR</b> — Biotin interferes with lab results.</div>
+      <div class="ss-r"><b>Black seed oil internally</b> — Redundant with Spiro. Topical on scalp is fine.</div>
+    </div>
+    <div class="stb">
+      <div class="stb-t">To buy — genuine gaps</div>
+      <div class="stb-r"><b>Methylfolate 400mcg</b> — Spiro depletes folate long-term. Active form only.</div>
+      <div class="stb-r"><b>Vitamin K2 MK-7 100mcg</b> — Pairs with D3. Without K2, calcium doesn't go where it should.</div>
+    </div>
+  </div>
+
+  <div class="view" id="view-signals">
+    <div class="sig">
+      <div class="sig-l">Mounjaro dose</div>
+      <div class="dose-row">
+        <button class="dose-btn" onclick="selDose(this)">2.5mg</button>
+        <button class="dose-btn" onclick="selDose(this)">5mg</button>
+        <button class="dose-btn" onclick="selDose(this)">7.5mg</button>
+        <button class="dose-btn" onclick="selDose(this)">10mg</button>
+      </div>
+      <div style="font-size:11px;color:var(--soft)">Last injection date:</div>
+      <input type="date">
+    </div>
+    <div class="sig">
+      <div class="sig-l">Daily signals <span style="font-size:10px;color:var(--mute)">(1 low → 5 high)</span></div>
+      <div class="mr"><div class="ml">Sleep quality</div><div class="pg" id="pg-sl"></div></div>
+      <div class="mr"><div class="ml">Energy</div><div class="pg" id="pg-en"></div></div>
+      <div class="mr"><div class="ml">Anxiety</div><div class="pg" id="pg-ax"></div></div>
+      <div class="mr"><div class="ml">Hair shedding</div><div class="pg" id="pg-hs"></div></div>
+      <div class="mr"><div class="ml">Skin clarity</div><div class="pg" id="pg-sk"></div></div>
+    </div>
+    <div class="sig">
+      <div style="display:flex;justify-content:space-between;margin-bottom:9px;"><span class="sig-l" style="margin:0">Monthly glow log</span><span style="font-family:var(--serif);font-size:14px;color:var(--gold)" id="glMonth"></span></div>
+      <textarea rows="2" placeholder="How do you feel about how you look right now? One honest sentence."></textarea>
+    </div>
+  </div>
+
+  <div class="view" id="view-rules">
+    <div class="fact"><div class="fact-l">Science reminder</div><div class="fact-t">Hair follicles take 90 days to respond to minoxidil. You are building something invisible right now.</div></div>
+    <div class="rod"><div class="rod-l">Today's rule</div><div class="rod-t">Nervous system first</div><div class="rod-s">If you are dysregulated, nothing else works. Regulate before deciding anything.</div></div>
+    <div class="rr"><div class="rn">01</div><div><div class="rt">Medications over mood</div><div class="rs">Spiro and supplements. Especially on bad days.</div></div></div>
+    <div class="rr"><div class="rn">02</div><div><div class="rt">Protein before sugar. Always.</div><div class="rs">Blood sugar is your energy, mood, and anxiety on Mounjaro.</div></div></div>
+    <div class="rr"><div class="rn">03</div><div><div class="rt">SPF is non-negotiable</div><div class="rs">Tretinoin means your skin cannot forgive unprotected sun.</div></div></div>
+    <div class="rr"><div class="rn">04</div><div><div class="rt">The minimum is enough</div><div class="rs">Hard day = water, meds, protein, SPF, sleep. Full win.</div></div></div>
+    <div class="rr"><div class="rn">05</div><div><div class="rt">Hair loss is slow to fix</div><div class="rs">It took months to develop. It takes months to reverse.</div></div></div>
+    <div class="rr"><div class="rn">06</div><div><div class="rt">Cortisol is the enemy</div><div class="rs">Self-criticism raises cortisol. You are not behind. You are building.</div></div></div>
+    <div class="rr"><div class="rn">07</div><div><div class="rt">One treatment at a time</div><div class="rs">Planned. Funded. Spaced. Patience is a beauty strategy.</div></div></div>
+    <div class="rr"><div class="rn">08</div><div><div class="rt">Calm is not shallow</div><div class="rs">You do not lose people by being regulated.</div></div></div>
+    <div class="rr"><div class="rn">09</div><div><div class="rt">This system serves you</div><div class="rs">Adjust when it stops fitting. Stay honest, not rigid.</div></div></div>
+  </div>
+
+  <div class="view" id="view-review">
+    <div style="padding:16px 0;font-size:12px;color:var(--mute)">Sunday check-in appears here each week.</div>
+  </div>
+
+  <div class="view" id="view-hair">
+    <div class="sect" style="padding-top:4px">Daily</div>
+    <div class="ir cat-hair" onclick="tick(this)"><label><div class="cb"></div><div class="ib"><div class="nm">Hair wash</div><div class="hi" id="washHi">Scalp-focused. Conditioner mid-lengths only.</div></div></label><input type="checkbox"></div>
+    <div class="ir cat-hair" onclick="tick(this)"><label><div class="cb"></div><div class="ib"><div class="nm">Scalp massage 4 min</div><div class="hi">After minoxidil. Fingertips, not nails.</div></div></label><input type="checkbox"></div>
+    <div class="ir cat-hair" onclick="tick(this)"><label><div class="cb"></div><div class="ib"><div class="nm">Minoxidil on scalp</div><div class="hi">Dry scalp. 4h before washing.</div></div></label><input type="checkbox"></div>
+    <div class="sect" id="nizSect">Tuesday + Friday</div>
+    <div class="ir cat-hair" id="nizItem" onclick="tick(this)"><label><div class="cb"></div><div class="ib"><div class="nm">Nizoral shampoo</div><div class="hi">Leave on 3–5 min. No conditioner after.</div></div><div class="badge wk">2× week</div></label><input type="checkbox"></div>
+    <div class="sect" id="dermSect">Saturday</div>
+    <div class="ir cat-hair" id="dermItem" onclick="tick(this)"><label><div class="cb"></div><div class="ib"><div class="nm">Dermastamp scalp</div><div class="hi">0.5mm. Wait 24h before next minoxidil.</div></div><div class="badge wk">weekly</div></label><input type="checkbox"></div>
+    <div class="sect" id="deepSect">Sunday</div>
+    <div class="ir cat-hair" id="deepItem" onclick="tick(this)"><label><div class="cb"></div><div class="ib"><div class="nm">Deep conditioning treatment</div><div class="hi">20 min minimum. Protein or moisture mask.</div></div><div class="badge wk">weekly</div></label><input type="checkbox"></div>
+    <div class="lph">Tap any item to check it off</div>
+  </div>
+
+</div>
+
+<div class="foot">
+  <div class="foot-in">
+    <div>
+      <div class="mood-l">How do you feel?</div>
+      <div class="mood-row">
+        <div class="mood-btn" onclick="selMood(this)">😞</div>
+        <div class="mood-btn" onclick="selMood(this)">😐</div>
+        <div class="mood-btn" onclick="selMood(this)">🙂</div>
+        <div class="mood-btn" onclick="selMood(this)">✨</div>
+      </div>
+    </div>
+    <div class="ram-badge" id="ramBadge">🌙 Ramadan mode</div>
+  </div>
+</div>
+
+<script>
+// Tab switching
+function gTab(id, el) {
+  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.getElementById('view-'+id).classList.add('active');
+  el.classList.add('active');
+}
+
+// Checklist tick
+function tick(el) {
+  el.classList.toggle('done');
+  updateProgress();
+}
+
+// Supplement tick
+function tickS(el) {
+  el.classList.toggle('done');
+}
+
+// Progress
+function updateProgress() {
+  var badges = document.querySelectorAll('#view-today .ir .badge');
+  var done = 0, total = 0;
+  badges.forEach(function(b) {
+    if (b.textContent.indexOf('core') > -1) {
+      total++;
+      if (b.closest('.ir').classList.contains('done')) done++;
+    }
+  });
+  document.getElementById('progFill').style.width = (total ? Math.round(done/total*100) : 0) + '%';
+  document.getElementById('progTxt').textContent = done + ' / ' + total;
+}
+
+// Ramadan
+var ramOn = false;
+function toggleRam() {
+  ramOn = !ramOn;
+  document.getElementById('togRam').classList.toggle('on', ramOn);
+  document.getElementById('ramBadge').classList.toggle('show', ramOn);
+  document.getElementById('spiroHi').textContent = ramOn ? 'Take at Iftar — avoid fasting stomach.' : 'Nightly. Non-negotiable.';
+  document.getElementById('protNm').textContent = ramOn ? 'Protein-first Suhoor' : 'Protein-first meal';
+  document.getElementById('waterNm').textContent = ramOn ? 'Hydrate between Iftar & Suhoor' : '2L water today';
+  document.getElementById('washHi').textContent = ramOn ? 'Nizoral day — use as shampoo today.' : 'Scalp-focused. Conditioner mid-lengths only.';
+}
+
+// Hard day
+function toggleHard() {
+  document.getElementById('togHard').classList.toggle('on');
+}
+
+// Mood
+function selMood(el) {
+  document.querySelectorAll('.mood-btn').forEach(function(b){b.classList.remove('sel');});
+  el.classList.add('sel');
+}
+
+// Dose
+function selDose(el) {
+  document.querySelectorAll('.dose-btn').forEach(function(b){b.classList.remove('sel');});
+  el.classList.add('sel');
+}
+
+// Build pip dots
+function buildPips() {
+  ['sl','en','ax','hs','sk'].forEach(function(key) {
+    var row = document.getElementById('pg-'+key);
+    if (!row) return;
+    for (var i = 1; i <= 5; i++) {
+      var d = document.createElement('div');
+      d.className = 'pip';
+      d.setAttribute('data-k', key);
+      d.onclick = function() {
+        var k = this.getAttribute('data-k');
+        document.querySelectorAll('#pg-'+k+' .pip').forEach(function(p){p.classList.remove('sel');});
+        this.classList.add('sel');
+      };
+      row.appendChild(d);
+    }
+  });
+}
+
+// Glow month
+function setMonth() {
+  var m = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var el = document.getElementById('glMonth');
+  if (el) el.textContent = m[new Date().getMonth()] + ' ' + new Date().getFullYear();
+}
+
+// Hair day logic
+function setHairDays() {
+  var d = new Date().getDay();
+  var show = function(id, on) { var e = document.getElementById(id); if(e) e.style.display = on ? '' : 'none'; };
+  show('nizSect', d===2||d===5);
+  show('nizItem', d===2||d===5);
+  show('dermSect', d===6);
+  show('dermItem', d===6);
+  show('deepSect', d===0);
+  show('deepItem', d===0);
+}
+
+buildPips();
+setMonth();
+setHairDays();
+</script>
+
+</body>
+</html>
