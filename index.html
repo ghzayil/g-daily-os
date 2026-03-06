@@ -30,7 +30,6 @@ body{max-width:430px;margin:0 auto;min-height:100dvh;padding-bottom:90px;}
 .togs{display:flex;gap:6px;}
 .tog{font-size:10px;color:var(--soft);background:var(--card);border:1px solid var(--border);border-radius:100px;padding:5px 12px;cursor:pointer;white-space:nowrap;transition:all .2s;}
 .tog.on.ram{background:var(--sage-g);border-color:rgba(122,150,120,0.3);color:var(--sage);}
-.tog.on.hard{background:rgba(184,107,74,0.09);border-color:rgba(184,107,74,0.28);color:var(--terra);}
 .tone{padding:0 16px 5px;font-family:var(--serif);font-size:13px;font-style:italic;color:var(--soft);}
 .prog-w{padding:0 16px 4px;display:flex;justify-content:space-between;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--mute);}
 .prog-bar{margin:0 16px 2px;height:2px;background:var(--parch);border-radius:2px;overflow:hidden;}
@@ -139,7 +138,6 @@ textarea{width:100%;background:var(--warm);border:1px solid var(--border);border
     <div class="streak">🔥 <span id="streakN">0</span> days</div>
     <div class="togs">
       <div class="tog ram" id="togRam" onclick="toggleRam()">🌙 Ramadan</div>
-      <div class="tog hard" id="togHard" onclick="toggleHard()">Hard day</div>
     </div>
   </div>
 </div>
@@ -323,12 +321,6 @@ function toggleRam() {
   saveState();
 }
 
-// Hard day
-function toggleHard() {
-  document.getElementById('togHard').classList.toggle('on');
-  saveState();
-}
-
 // Mood
 function selMood(el) {
   document.querySelectorAll('.mood-btn').forEach(function(b){b.classList.remove('sel');});
@@ -412,7 +404,6 @@ function saveState() {
   });
   // toggles
   state['ram'] = ramOn;
-  state['hard'] = document.getElementById('togHard').classList.contains('on');
   // date
   var dt = document.querySelector('input[type=date]');
   state['date'] = dt ? dt.value : '';
@@ -460,7 +451,6 @@ function loadState() {
   }, 50);
   // toggles
   if (state['ram']) { ramOn = false; toggleRam(); }
-  if (state['hard']) document.getElementById('togHard').classList.add('on');
   // date
   if (state['date']) {
     var dt = document.querySelector('input[type=date]');
